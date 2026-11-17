@@ -30,6 +30,6 @@ export class AuthService {
   private issueToken(user: { id: number; email: string; name: string; role: Role; passwordHash: string; createdAt: Date }) {
     const accessToken = this.jwtService.sign({ sub: user.id, email: user.email, role: user.role });
     const { passwordHash: _passwordHash, ...safeUser } = user;
-    return { accessToken, tokenType: 'Bearer', user: safeUser };
+    return { access_token: accessToken, tokenType: 'Bearer', user: safeUser };
   }
 }

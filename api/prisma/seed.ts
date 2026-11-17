@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -52,6 +53,18 @@ async function main() {
       update: book,
       create: book,
     });
+  }
+
+  const librarianEmail = process.env.LIBRARIAN_EMAIL?.toLowerCase();
+  const librarianPassword = process.env.LIBRARIAN_PASSWORD;
+  if (librarianEmail && librarianPassword) {
+    const passwordHash = await bcrypt.hash(librarianPassword, 12);
+    await prisma.user.upsert({
+      where: { email: librarianEmail },
+      update: { role: 'LIBRARIAN', passwordHash },
+      create: { name: 'Library Admin', email: librarianEmail, passwordHash, role: 'LIBRARIAN' },
+    });
+    console.log(`Seeded librarian account ${librarianEmail}.`);
   }
 
   console.log(`Seeded ${books.length} books across 4 genres.`);

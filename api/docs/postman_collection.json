@@ -1,0 +1,33 @@
+{
+  "info": {
+    "name": "Library Management API",
+    "description": "Core catalog and authentication endpoints. Set baseUrl, then use a librarian token for guarded book mutations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "bookId", "value": "1" },
+    { "key": "genreId", "value": "1" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    { "name": "Auth", "item": [
+      { "name": "Register patron", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Patron Name\",\n  \"email\": \"patron@example.com\",\n  \"password\": \"change-this-password\"\n}" }, "url": "{{baseUrl}}/auth/register" }, "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code < 300) pm.collectionVariables.set('token', pm.response.json().accessToken);"] } }] },
+      { "name": "Login", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"librarian@example.com\",\n  \"password\": \"replace-with-seeded-password\"\n}" }, "url": "{{baseUrl}}/auth/login" }, "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code < 300) pm.collectionVariables.set('token', pm.response.json().accessToken);"] } }] }
+    ] },
+    { "name": "Books", "item": [
+      { "name": "List books (filter/search/page)", "request": { "method": "GET", "url": "{{baseUrl}}/books?genreId={{genreId}}&search=quiet&page=1&limit=10" } },
+      { "name": "Get book", "request": { "method": "GET", "url": "{{baseUrl}}/books/{{bookId}}" } },
+      { "name": "Create book (librarian)", "request": { "method": "POST", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Example Book\",\n  \"author\": \"Example Author\",\n  \"isbn\": \"9780306406157\",\n  \"totalCopies\": 3,\n  \"genreId\": 1\n}" }, "url": "{{baseUrl}}/books" } },
+      { "name": "Update book (librarian)", "request": { "method": "PATCH", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }, "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"totalCopies\": 4\n}" }, "url": "{{baseUrl}}/books/{{bookId}}" } },
+      { "name": "Delete book (librarian)", "request": { "method": "DELETE", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }, "url": "{{baseUrl}}/books/{{bookId}}" } }
+    ] },
+    { "name": "Genres", "item": [
+      { "name": "List genres", "request": { "method": "GET", "url": "{{baseUrl}}/genres" } },
+      { "name": "Get genre", "request": { "method": "GET", "url": "{{baseUrl}}/genres/{{genreId}}" } },
+      { "name": "Create genre", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Biography\",\n  \"slug\": \"biography\"\n}" }, "url": "{{baseUrl}}/genres" } },
+      { "name": "Update genre", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Biographies\"\n}" }, "url": "{{baseUrl}}/genres/{{genreId}}" } },
+      { "name": "Delete genre", "request": { "method": "DELETE", "url": "{{baseUrl}}/genres/{{genreId}}" } }
+    ] }
+  ]
+}
